@@ -2,320 +2,519 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tour Cost Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Tour Calculator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
 :root {
-  --bg: #f7f5f0;
+  --bg: #f4f6f9;
   --surface: #ffffff;
-  --border: #e8e4dc;
-  --border2: #d4cfc5;
-  --text: #1a1814;
-  --muted: #7a7670;
-  --accent: #2d5a3d;
-  --accent-light: #e8f0eb;
-  --accent2: #8b4513;
-  --accent2-light: #f5ede6;
+  --surface2: #f0f2f5;
+  --border: #e2e6ee;
+  --border2: #cdd2de;
+  --text: #1a1e2e;
+  --muted: #7a8099;
+  --accent: #2d7a4f;
+  --accent-dim: #e6f4ec;
+  --accent2: #1d6fb8;
+  --accent2-dim: #e8f1fb;
+  --amber: #a07010;
+  --amber-dim: #fdf5e0;
   --danger: #c0392b;
-  --danger-light: #fdf0ee;
-  --amber: #b8860b;
-  --amber-light: #fdf8e8;
-  --radius: 10px;
-  --radius-lg: 16px;
+  --danger-dim: #fdf0ee;
+  --radius: 12px;
+  --radius-lg: 18px;
+  --nav-h: 64px;
+  --header-h: 56px;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  overscroll-behavior: none;
+}
 
-/* layout */
-.shell { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
-.sidebar { background: var(--text); color: #fff; padding: 0; display: flex; flex-direction: column; }
-.sidebar-top { padding: 1.75rem 1.5rem 1.25rem; border-bottom: 1px solid #2e2b27; }
-.sidebar-top h2 { font-family: 'DM Serif Display', serif; font-size: 20px; font-weight: 400; color: #fff; letter-spacing: -.3px; }
-.sidebar-top p { font-size: 12px; color: #888; margin-top: 4px; }
-.sidebar-nav { padding: .75rem .75rem; flex: 1; }
-.nav-btn { width: 100%; display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: var(--radius); border: none; background: transparent; color: #bbb; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; text-align: left; transition: background .15s, color .15s; }
-.nav-btn:hover { background: #2a2724; color: #fff; }
-.nav-btn.active { background: var(--accent); color: #fff; }
-.nav-btn i { width: 16px; text-align: center; }
-.saved-list { padding: 0 .75rem 1rem; overflow-y: auto; flex: 1; }
-.saved-item { padding: 9px 12px; border-radius: var(--radius); cursor: pointer; margin-bottom: 4px; border: 1px solid #2e2b27; transition: background .15s; }
-.saved-item:hover { background: #2a2724; }
-.saved-item .si-name { font-size: 13px; color: #eee; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.saved-item .si-meta { font-size: 11px; color: #777; margin-top: 2px; }
-.saved-item .si-amount { font-size: 12px; color: #9fbc9f; font-weight: 500; }
-.no-trips { font-size: 12px; color: #666; padding: 12px; text-align: center; }
+/* ── App shell ── */
+#app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
 
-/* main */
-.main { padding: 2rem; overflow-y: auto; }
+/* ── Top header ── */
+.top-bar {
+  height: var(--header-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1rem;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+.top-bar-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px; font-weight: 400;
+  color: var(--text);
+  letter-spacing: -.3px;
+}
+.top-bar-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.top-bar-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--accent-dim); display: flex; align-items: center; justify-content: center; }
+.top-bar-icon i { color: var(--accent); font-size: 15px; }
+
+/* ── Scrollable content ── */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 1rem 1rem calc(var(--nav-h) + 1rem);
+}
 .page { display: none; }
 .page.active { display: block; }
 
-/* page header */
-.page-hdr { margin-bottom: 1.5rem; }
-.page-hdr h1 { font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400; color: var(--text); letter-spacing: -.5px; }
-.page-hdr p { font-size: 13px; color: var(--muted); margin-top: 4px; }
-
-/* cards */
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
-.sec-lbl { font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-bottom: .875rem; display: flex; align-items: center; gap: 6px; }
-
-/* form */
-.field { margin-bottom: 12px; }
-.field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
-.field input, .field select {
-  width: 100%; font-size: 14px; font-family: 'DM Sans', sans-serif;
-  padding: 8px 11px; border: 1px solid var(--border); border-radius: var(--radius);
-  background: var(--bg); color: var(--text); outline: none; transition: border-color .15s;
+/* ── Bottom nav ── */
+.bottom-nav {
+  height: var(--nav-h);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  flex-shrink: 0;
+  position: relative; z-index: 10;
 }
-.field input:focus, .field select:focus { border-color: var(--accent); }
-.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.bnav-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; border: none; background: transparent; color: var(--muted);
+  font-family: 'Sora', sans-serif; font-size: 10px; font-weight: 500;
+  cursor: pointer; transition: color .2s; padding: 0;
+  letter-spacing: .03em;
+}
+.bnav-btn i { font-size: 18px; }
+.bnav-btn.active { color: var(--accent); }
+.bnav-btn .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); opacity: 0; transition: opacity .2s; margin-top: -2px; }
+.bnav-btn.active .dot { opacity: 1; }
 
-/* tourist rows */
-.t-row { display: grid; grid-template-columns: 34px 1fr auto; gap: 8px; align-items: center; margin-bottom: 8px; }
-.avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; flex-shrink: 0; }
-.t-row input { font-size: 14px; font-family: 'DM Sans', sans-serif; padding: 8px 11px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); color: var(--text); outline: none; }
+/* ── Cards ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  margin-bottom: .75rem;
+}
+.card-title {
+  font-size: 11px; font-weight: 600; color: var(--muted);
+  letter-spacing: .08em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 7px;
+  margin-bottom: .875rem;
+}
+.card-title i { color: var(--accent); font-size: 12px; }
+
+/* ── Fields ── */
+.field { margin-bottom: .75rem; }
+.field:last-child { margin-bottom: 0; }
+.field label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 5px; font-weight: 500; letter-spacing: .04em; }
+.field input, .field select {
+  width: 100%; font-size: 15px; font-family: 'Sora', sans-serif;
+  padding: 11px 13px; border: 1px solid var(--border2);
+  border-radius: var(--radius); background: var(--bg);
+  color: var(--text); outline: none;
+  transition: border-color .15s, box-shadow .15s;
+  -webkit-appearance: none;
+}
+.field input:focus, .field select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(74,222,128,.1);
+}
+.field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7494' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ── Cost grid ── */
+.cost-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cost-field { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; position: relative; }
+.cost-field label { font-size: 10px; color: var(--muted); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; display: block; margin-bottom: 4px; }
+.cost-field input { border: none; background: transparent; padding: 0; font-size: 16px; font-weight: 500; color: var(--text); width: 100%; font-family: 'Sora', sans-serif; outline: none; }
+.cost-field .currency { font-size: 11px; color: var(--muted); position: absolute; right: 10px; bottom: 10px; }
+
+/* ── Tourist rows ── */
+.t-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; flex-shrink: 0;
+}
+.t-row input {
+  flex: 1; font-size: 15px; font-family: 'Sora', sans-serif;
+  padding: 10px 12px; border: 1px solid var(--border2);
+  border-radius: var(--radius); background: var(--bg); color: var(--text); outline: none;
+  -webkit-appearance: none;
+}
 .t-row input:focus { border-color: var(--accent); }
-.rm-btn { height: 34px; width: 34px; border: 1px solid var(--border); border-radius: var(--radius); background: transparent; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s, color .15s; }
-.rm-btn:hover { background: var(--danger-light); color: var(--danger); border-color: #e8b4b0; }
-.add-btn { width: 100%; padding: 9px; border: 1px dashed var(--border2); border-radius: var(--radius); background: transparent; color: var(--muted); font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background .15s; }
-.add-btn:hover { background: var(--bg); }
+.rm-btn {
+  width: 36px; height: 36px; flex-shrink: 0;
+  border: 1px solid var(--border); border-radius: 50%;
+  background: transparent; color: var(--muted);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; cursor: pointer;
+}
+.add-tourist-btn {
+  width: 100%; padding: 11px; border: 1.5px dashed var(--border2);
+  border-radius: var(--radius); background: transparent; color: var(--muted);
+  font-size: 13px; font-family: 'Sora', sans-serif; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  margin-top: 4px;
+}
 
-/* split options */
-.split-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-.split-opt { border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; cursor: pointer; transition: border-color .15s, background .15s; display: flex; align-items: flex-start; gap: 9px; }
-.split-opt:hover { border-color: var(--border2); background: var(--bg); }
-.split-opt.active { border-color: var(--accent); background: var(--accent-light); }
-.split-opt i { font-size: 16px; color: var(--muted); margin-top: 2px; }
-.split-opt.active i { color: var(--accent); }
-.split-opt .ot { font-size: 13px; font-weight: 500; color: var(--text); }
-.split-opt .od { font-size: 11px; color: var(--muted); margin-top: 2px; }
+/* ── Split options ── */
+.split-list { display: flex; flex-direction: column; gap: 8px; }
+.split-opt {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; border: 1px solid var(--border);
+  border-radius: var(--radius); cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.split-opt.active { border-color: var(--accent); background: var(--accent-dim); }
+.split-opt .so-icon { width: 34px; height: 34px; border-radius: 9px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--muted); flex-shrink: 0; }
+.split-opt.active .so-icon { background: var(--accent-dim); color: var(--accent); }
+.split-opt .so-title { font-size: 13px; font-weight: 500; color: var(--text); }
+.split-opt .so-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.split-opt .so-check { margin-left: auto; color: var(--accent); font-size: 14px; opacity: 0; }
+.split-opt.active .so-check { opacity: 1; }
 
-/* pct controls */
-.pct-row { display: grid; grid-template-columns: 28px 1fr auto 52px; gap: 8px; align-items: center; margin-bottom: 8px; }
-.pct-row input[type=range] { accent-color: var(--accent); }
-.pct-badge { font-size: 12px; font-weight: 500; background: var(--accent-light); color: var(--accent); padding: 3px 8px; border-radius: 100px; text-align: center; }
+/* ── pct controls ── */
+.pct-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.pct-row .pn { font-size: 13px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pct-row input[type=range] { flex: 1; accent-color: var(--accent); }
+.pct-badge { font-size: 12px; font-weight: 600; background: var(--accent-dim); color: var(--accent); padding: 3px 9px; border-radius: 100px; min-width: 46px; text-align: center; }
 
-/* metrics */
-.metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1rem; }
-.metric { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: .875rem 1rem; }
-.metric .ml { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
-.metric .mv { font-size: 18px; font-weight: 500; color: var(--text); }
+/* ── Summary metrics ── */
+.metrics-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: .75rem; }
+.metric { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: .875rem; }
+.metric .ml { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 5px; font-weight: 600; }
+.metric .mv { font-size: 20px; font-weight: 600; color: var(--text); }
+.metric.accent-card { background: var(--accent-dim); border-color: rgba(74,222,128,.2); }
+.metric.accent-card .mv { color: var(--accent); }
 
-/* breakdown bars */
-.bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; }
-.bar-lbl { width: 75px; color: var(--muted); flex-shrink: 0; text-align: right; }
-.bar-track { flex: 1; height: 5px; background: var(--border); border-radius: 100px; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 100px; transition: width .4s; }
-.bar-amt { width: 70px; text-align: right; font-weight: 500; color: var(--text); flex-shrink: 0; }
+/* ── Bar chart ── */
+.bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; font-size: 12px; }
+.bar-lbl { width: 60px; color: var(--muted); flex-shrink: 0; text-align: right; font-size: 11px; }
+.bar-track { flex: 1; height: 6px; background: var(--border); border-radius: 100px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 100px; transition: width .4s ease; }
+.bar-amt { width: 64px; text-align: right; font-weight: 600; color: var(--text); flex-shrink: 0; font-size: 12px; }
 
-/* person cards */
-.person-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); gap: 10px; }
-.p-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
-.p-card .pn { font-size: 13px; font-weight: 500; color: var(--text); display: flex; align-items: center; gap: 7px; margin-bottom: 8px; }
-.p-card table { width: 100%; font-size: 12px; border-collapse: collapse; }
-.p-card td { padding: 3px 0; color: var(--muted); }
-.p-card td:last-child { text-align: right; font-weight: 500; color: var(--text); }
-.p-card .ptotal { border-top: 1px solid var(--border); padding-top: 7px; margin-top: 5px; font-size: 13px; font-weight: 500; display: flex; justify-content: space-between; }
+/* ── Person share rows ── */
+.person-share { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.person-share .ps-info { flex: 1; min-width: 0; }
+.person-share .ps-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.person-share .ps-bar { height: 4px; background: var(--border); border-radius: 100px; overflow: hidden; margin-top: 5px; }
+.person-share .ps-bar-fill { height: 100%; border-radius: 100px; }
+.person-share .ps-amt { font-size: 13px; font-weight: 600; flex-shrink: 0; }
 
-/* save button */
-.save-btn { display: flex; align-items: center; gap: 8px; padding: 10px 22px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: opacity .15s; }
-.save-btn:hover { opacity: .88; }
-.save-btn:disabled { opacity: .5; cursor: not-allowed; }
+/* ── Save button ── */
+.save-btn {
+  width: 100%; padding: 14px;
+  background: var(--accent); color: #ffffff;
+  border: none; border-radius: var(--radius);
+  font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  cursor: pointer; transition: opacity .15s; margin-top: .5rem;
+}
+.save-btn:disabled { opacity: .5; }
+.save-btn:active { opacity: .8; }
 
-/* toast */
-.toast { position: fixed; bottom: 24px; right: 24px; background: var(--text); color: #fff; padding: 12px 18px; border-radius: var(--radius); font-size: 13px; display: none; z-index: 999; }
-.toast.show { display: block; animation: fadeup .25s ease; }
-@keyframes fadeup { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+/* ── History items ── */
+.trip-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 1rem;
+  margin-bottom: .75rem; cursor: pointer;
+  transition: border-color .15s;
+  active: scale(.98);
+}
+.trip-card:active { border-color: var(--border2); }
+.trip-card .tc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.trip-card .tc-dest { font-size: 16px; font-weight: 600; color: var(--text); }
+.trip-card .tc-amt { font-size: 16px; font-weight: 700; color: var(--accent); }
+.trip-card .tc-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.trip-card .tc-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.tag { display: inline-flex; align-items: center; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 100px; letter-spacing: .04em; }
+.tag-g { background: var(--accent-dim); color: var(--accent); }
+.tag-b { background: var(--accent2-dim); color: var(--accent2); }
+.tag-a { background: var(--amber-dim); color: var(--amber); }
+.tc-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; }
+.tc-date { font-size: 11px; color: var(--muted); }
+.del-btn { padding: 5px 12px; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; }
 
-/* history page */
-.trip-row { border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 10px; display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; cursor: pointer; transition: border-color .15s; }
-.trip-row:hover { border-color: var(--border2); }
-.trip-row .tr-name { font-size: 15px; font-weight: 500; color: var(--text); }
-.trip-row .tr-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
-.trip-row .tr-right { text-align: right; }
-.trip-row .tr-amt { font-size: 16px; font-weight: 500; color: var(--accent); }
-.trip-row .tr-date { font-size: 11px; color: var(--muted); margin-top: 2px; }
-.del-btn { padding: 5px 10px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; margin-left: 10px; }
-.del-btn:hover { background: var(--danger-light); color: var(--danger); border-color: #e8b4b0; }
-
-/* detail modal */
-.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; z-index: 100; align-items: center; justify-content: center; }
+/* ── Modal ── */
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 200; display: none; align-items: flex-end; }
 .modal-bg.open { display: flex; }
-.modal { background: var(--surface); border-radius: var(--radius-lg); padding: 1.75rem; width: 640px; max-width: 95vw; max-height: 85vh; overflow-y: auto; }
-.modal-hdr { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.25rem; }
-.modal-hdr h2 { font-family: 'DM Serif Display', serif; font-size: 22px; font-weight: 400; color: var(--text); }
-.close-btn { background: none; border: none; font-size: 18px; color: var(--muted); cursor: pointer; }
-.tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 3px 9px; border-radius: 100px; font-weight: 500; margin-right: 4px; }
-.tag-green { background: var(--accent-light); color: var(--accent); }
-.tag-amber { background: var(--amber-light); color: var(--amber); }
+.modal {
+  background: var(--surface); border-radius: 24px 24px 0 0;
+  width: 100%; max-height: 88vh; overflow-y: auto;
+  padding: 1.25rem 1rem 2rem;
+  animation: slideup .3s ease;
+}
+@keyframes slideup { from { transform: translateY(100%); } to { transform: none; } }
+.modal-handle { width: 40px; height: 4px; background: var(--border2); border-radius: 2px; margin: 0 auto 1rem; }
+.modal-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.modal-hdr h2 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 400; }
+.close-btn { width: 32px; height: 32px; border-radius: 50%; background: var(--surface2); border: none; color: var(--muted); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
 
-/* warn */
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: calc(var(--nav-h) + 12px); left: 50%; transform: translateX(-50%);
+  background: var(--text); color: var(--bg);
+  padding: 11px 20px; border-radius: 100px; font-size: 13px; font-weight: 500;
+  white-space: nowrap; z-index: 300; pointer-events: none;
+  opacity: 0; transition: opacity .2s;
+}
+.toast.show { opacity: 1; }
+
+/* ── Page header ── */
+.page-hdr { margin-bottom: 1rem; }
+.page-hdr h1 { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 400; color: var(--text); }
+.page-hdr p { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+/* ── Section sep ── */
+.divider { height: 1px; background: var(--border); margin: .875rem 0; }
+
+/* ── Warn ── */
 .warn-note { font-size: 12px; color: var(--amber); margin-top: 6px; display: none; }
 
-.divider { height: 1px; background: var(--border); margin: 1rem 0; }
+/* ── Summary page ── */
+#page-summary .card { margin-bottom: .75rem; }
+
+/* ── Sponsor select ── */
+#sponsor-section { margin-top: .875rem; }
 </style>
 </head>
 <body>
-<div class="shell">
-  <aside class="sidebar">
-    <div class="sidebar-top">
-      <h2>Tour Calculator</h2>
-      <p>Powered by Flask + MySQL</p>
-    </div>
-    <div class="sidebar-nav">
-      <button class="nav-btn active" onclick="showPage('calc')" id="nav-calc">
-        <i class="fa-solid fa-calculator"></i> New calculation
-      </button>
-      <button class="nav-btn" onclick="showPage('history')" id="nav-history">
-        <i class="fa-solid fa-clock-rotate-left"></i> Saved trips
-      </button>
-    </div>
-    <div class="saved-list" id="sidebar-trips">
-      <div class="no-trips">No saved trips yet</div>
-    </div>
-  </aside>
+<div id="app">
 
-  <main class="main">
+  <!-- Top bar -->
+  <div class="top-bar">
+    <div>
+      <div class="top-bar-title">Tour Calculator</div>
+      <div class="top-bar-sub">Plan & split trip costs</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:1px">Made by <strong style="color:var(--accent)">Shahil My Daddy</strong> ❤️</div>
+    </div>
+    <div class="top-bar-icon"><i class="fa-solid fa-map-location-dot"></i></div>
+  </div>
 
-    <!-- CALCULATOR PAGE -->
+  <!-- Scrollable pages -->
+  <div class="content" id="content">
+
+    <!-- ── CALCULATOR PAGE ── -->
     <div class="page active" id="page-calc">
       <div class="page-hdr">
-        <h1>New tour</h1>
-        <p>Fill in the details, choose a split method, then save to MySQL</p>
+        <h1>New trip</h1>
+        <p>Add tourists, enter costs, split the bill</p>
       </div>
 
+      <!-- Tourists -->
       <div class="card">
-        <div class="sec-lbl"><i class="fa-solid fa-users"></i> Tourist names</div>
+        <div class="card-title"><i class="fa-solid fa-users"></i> Tourists</div>
         <div id="tourist-list"></div>
-        <button class="add-btn" onclick="addTourist()"><i class="fa-solid fa-plus"></i> Add tourist</button>
+        <button class="add-tourist-btn" onclick="addTourist()">
+          <i class="fa-solid fa-plus"></i> Add tourist
+        </button>
       </div>
 
+      <!-- Trip details -->
       <div class="card">
-        <div class="sec-lbl"><i class="fa-solid fa-map-pin"></i> Trip details</div>
-        <div class="g2">
-          <div class="field"><label>Destination</label><input id="dest" placeholder="e.g. Cox's Bazar" oninput="calc()"></div>
-          <div class="field"><label>Duration (days)</label><input id="days" type="number" value="3" min="1" oninput="calc()"></div>
+        <div class="card-title"><i class="fa-solid fa-map-pin"></i> Trip details</div>
+        <div class="field">
+          <label>Destination</label>
+          <input id="dest" type="text" placeholder="e.g. Cox's Bazar" oninput="calc()">
         </div>
         <div class="g2">
-          <div class="field"><label>Transport type</label>
+          <div class="field">
+            <label>Duration (days)</label>
+            <input id="days" type="number" value="3" min="1" oninput="calc()">
+          </div>
+          <div class="field">
+            <label>Transport type</label>
             <select id="ttype" onchange="calc()">
               <option>Bus</option><option>Train</option><option>Flight</option>
-              <option>Car rental</option><option>Microbus</option><option>Boat / Launch</option><option>Mixed</option>
+              <option>Car rental</option><option>Microbus</option>
+              <option>Boat / Launch</option><option>Mixed</option>
             </select>
           </div>
-          <div class="field"><label>Route / details</label><input id="tdetail" placeholder="e.g. Dhaka → Cox's Bazar" oninput="calc()"></div>
+        </div>
+        <div class="field">
+          <label>Route / details</label>
+          <input id="tdetail" type="text" placeholder="e.g. Dhaka → Cox's Bazar" oninput="calc()">
         </div>
       </div>
 
+      <!-- Costs -->
       <div class="card">
-        <div class="sec-lbl"><i class="fa-solid fa-receipt"></i> Cost inputs (total for group)</div>
-        <div class="g3">
-          <div class="field"><label>Transport (৳)</label><input id="c-transport" type="number" placeholder="12000" oninput="calc()"></div>
-          <div class="field"><label>Hotel (৳)</label><input id="c-hotel" type="number" placeholder="15000" oninput="calc()"></div>
-          <div class="field"><label>Food (৳)</label><input id="c-food" type="number" placeholder="9000" oninput="calc()"></div>
-        </div>
-        <div class="g3">
-          <div class="field"><label>Tickets (৳)</label><input id="c-tickets" type="number" placeholder="2000" oninput="calc()"></div>
-          <div class="field"><label>Guide (৳)</label><input id="c-guide" type="number" placeholder="1500" oninput="calc()"></div>
-          <div class="field"><label>Misc (৳)</label><input id="c-misc" type="number" placeholder="3000" oninput="calc()"></div>
+        <div class="card-title"><i class="fa-solid fa-receipt"></i> Total costs (group)</div>
+        <div class="cost-grid">
+          <div class="cost-field">
+            <label>Transport</label>
+            <input id="c-transport" type="number" placeholder="0" oninput="calc()">
+            <span class="currency">৳</span>
+          </div>
+          <div class="cost-field">
+            <label>Hotel</label>
+            <input id="c-hotel" type="number" placeholder="0" oninput="calc()">
+            <span class="currency">৳</span>
+          </div>
+          <div class="cost-field">
+            <label>Food</label>
+            <input id="c-food" type="number" placeholder="0" oninput="calc()">
+            <span class="currency">৳</span>
+          </div>
+          <div class="cost-field">
+            <label>Tickets</label>
+            <input id="c-tickets" type="number" placeholder="0" oninput="calc()">
+            <span class="currency">৳</span>
+          </div>
+          <div class="cost-field">
+            <label>Guide</label>
+            <input id="c-guide" type="number" placeholder="0" oninput="calc()">
+            <span class="currency">৳</span>
+          </div>
+          <div class="cost-field">
+            <label>Misc</label>
+            <input id="c-misc" type="number" placeholder="0" oninput="calc()">
+            <span class="currency">৳</span>
+          </div>
         </div>
       </div>
 
+      <!-- Split -->
       <div class="card">
-        <div class="sec-lbl"><i class="fa-solid fa-sliders"></i> Split method</div>
-        <div class="split-grid" id="split-grid">
+        <div class="card-title"><i class="fa-solid fa-sliders"></i> Split method</div>
+        <div class="split-list">
           <div class="split-opt active" onclick="setSplit('equal')" id="opt-equal">
-            <i class="fa-solid fa-equals"></i>
-            <div><div class="ot">Equal split</div><div class="od">Everyone pays the same</div></div>
+            <div class="so-icon"><i class="fa-solid fa-equals"></i></div>
+            <div><div class="so-title">Equal split</div><div class="so-desc">Everyone pays the same</div></div>
+            <i class="fa-solid fa-circle-check so-check"></i>
           </div>
           <div class="split-opt" onclick="setSplit('custom')" id="opt-custom">
-            <i class="fa-solid fa-percent"></i>
-            <div><div class="ot">Custom %</div><div class="od">Set each person's share</div></div>
+            <div class="so-icon"><i class="fa-solid fa-percent"></i></div>
+            <div><div class="so-title">Custom %</div><div class="so-desc">Set each person's share</div></div>
+            <i class="fa-solid fa-circle-check so-check"></i>
           </div>
           <div class="split-opt" onclick="setSplit('organizer')" id="opt-organizer">
-            <i class="fa-solid fa-crown"></i>
-            <div><div class="ot">Organizer pays</div><div class="od">First person covers all</div></div>
+            <div class="so-icon"><i class="fa-solid fa-crown"></i></div>
+            <div><div class="so-title">Organizer pays</div><div class="so-desc">First person covers all</div></div>
+            <i class="fa-solid fa-circle-check so-check"></i>
           </div>
           <div class="split-opt" onclick="setSplit('transport-only')" id="opt-transport-only">
-            <i class="fa-solid fa-bus"></i>
-            <div><div class="ot">Transport split</div><div class="od">Only transport shared</div></div>
+            <div class="so-icon"><i class="fa-solid fa-bus"></i></div>
+            <div><div class="so-title">Transport split</div><div class="so-desc">Only transport shared</div></div>
+            <i class="fa-solid fa-circle-check so-check"></i>
           </div>
           <div class="split-opt" onclick="setSplit('hotel-food')" id="opt-hotel-food">
-            <i class="fa-solid fa-bed"></i>
-            <div><div class="ot">Hotel + food split</div><div class="od">Hotel & food shared</div></div>
+            <div class="so-icon"><i class="fa-solid fa-bed"></i></div>
+            <div><div class="so-title">Hotel + food</div><div class="so-desc">Hotel & food shared equally</div></div>
+            <i class="fa-solid fa-circle-check so-check"></i>
           </div>
           <div class="split-opt" onclick="setSplit('sponsor')" id="opt-sponsor">
-            <i class="fa-solid fa-gift"></i>
-            <div><div class="ot">Sponsored</div><div class="od">One sponsor covers all</div></div>
+            <div class="so-icon"><i class="fa-solid fa-gift"></i></div>
+            <div><div class="so-title">Sponsored</div><div class="so-desc">One sponsor covers all</div></div>
+            <i class="fa-solid fa-circle-check so-check"></i>
           </div>
         </div>
+
         <div id="custom-pct-section" style="display:none;margin-top:1rem">
-          <div class="sec-lbl" style="margin-bottom:.75rem"><i class="fa-solid fa-sliders"></i> Custom percentages</div>
+          <div class="card-title" style="margin-bottom:.75rem"><i class="fa-solid fa-sliders"></i> Custom percentages</div>
           <div id="pct-controls"></div>
-          <div class="warn-note" id="pct-warn"><i class="fa-solid fa-triangle-exclamation"></i> Percentages must add up to 100%</div>
+          <div class="warn-note" id="pct-warn"><i class="fa-solid fa-triangle-exclamation"></i> Must add up to 100%</div>
         </div>
         <div id="sponsor-section" style="display:none;margin-top:1rem">
-          <div class="field"><label>Sponsor (pays for everyone)</label>
+          <div class="field">
+            <label>Sponsor (pays for everyone)</label>
             <select id="sponsor-select" onchange="calc()"><option value="-1">— select —</option></select>
           </div>
         </div>
       </div>
 
+      <button class="save-btn" onclick="saveTrip()" id="save-btn">
+        <i class="fa-solid fa-floppy-disk"></i> Save trip
+      </button>
+    </div>
+
+    <!-- ── SUMMARY PAGE ── -->
+    <div class="page" id="page-summary">
+      <div class="page-hdr">
+        <h1>Summary</h1>
+        <p id="sum-meta">Fill in the calculator first</p>
+      </div>
+
+      <div class="metrics-row">
+        <div class="metric accent-card">
+          <div class="ml">Total cost</div>
+          <div class="mv" id="m-total">৳0</div>
+        </div>
+        <div class="metric">
+          <div class="ml">Avg / person</div>
+          <div class="mv" id="m-avg">৳0</div>
+        </div>
+        <div class="metric">
+          <div class="ml">Per day</div>
+          <div class="mv" id="m-pd">৳0</div>
+        </div>
+        <div class="metric">
+          <div class="ml">Split</div>
+          <div class="mv" style="font-size:13px" id="m-method">Equal</div>
+        </div>
+      </div>
+
       <div class="card">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:1.25rem">
-          <div>
-            <div style="font-size:20px;font-weight:500;font-family:'DM Serif Display',serif" id="r-dest">Trip summary</div>
-            <div style="font-size:13px;color:var(--muted);margin-top:3px" id="r-meta"></div>
-          </div>
-          <div id="r-tags"></div>
-        </div>
-        <div class="metrics-grid">
-          <div class="metric"><div class="ml">Total cost</div><div class="mv" id="m-total">৳0</div></div>
-          <div class="metric"><div class="ml">Avg per person</div><div class="mv" id="m-avg">৳0</div></div>
-          <div class="metric"><div class="ml">Per day</div><div class="mv" id="m-pd">৳0</div></div>
-          <div class="metric"><div class="ml">Split method</div><div class="mv" style="font-size:13px" id="m-method">Equal</div></div>
-        </div>
-        <div class="g2" style="gap:24px;margin-bottom:1.25rem">
-          <div>
-            <div class="sec-lbl">Cost breakdown</div>
-            <div id="bar-chart"></div>
-          </div>
-          <div>
-            <div class="sec-lbl">Per-person share</div>
-            <div id="person-summary"></div>
-          </div>
-        </div>
-        <div class="sec-lbl"><i class="fa-solid fa-id-card"></i> Individual breakdown</div>
-        <div class="person-cards" id="person-cards"></div>
-        <div class="divider"></div>
-        <button class="save-btn" onclick="saveTrip()" id="save-btn">
-          <i class="fa-solid fa-floppy-disk"></i> Save to database
-        </button>
+        <div class="card-title"><i class="fa-solid fa-chart-bar"></i> Cost breakdown</div>
+        <div id="bar-chart"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-user-group"></i> Per-person share</div>
+        <div id="person-summary"></div>
       </div>
     </div>
 
-    <!-- HISTORY PAGE -->
+    <!-- ── HISTORY PAGE ── -->
     <div class="page" id="page-history">
       <div class="page-hdr">
         <h1>Saved trips</h1>
-        <p>All trips stored in MySQL database</p>
+        <p>Your trip history</p>
       </div>
-      <div id="history-list"><div style="color:var(--muted);font-size:14px">Loading...</div></div>
+      <div id="history-list"><div style="color:var(--muted);font-size:14px;text-align:center;padding:2rem">Loading...</div></div>
     </div>
 
-  </main>
+  </div><!-- /content -->
+
+  <!-- Bottom nav -->
+  <nav class="bottom-nav">
+    <button class="bnav-btn active" onclick="showPage('calc')" id="nav-calc">
+      <i class="fa-solid fa-calculator"></i>
+      <span>Calculator</span>
+      <div class="dot"></div>
+    </button>
+    <button class="bnav-btn" onclick="showPage('summary')" id="nav-summary">
+      <i class="fa-solid fa-chart-pie"></i>
+      <span>Summary</span>
+      <div class="dot"></div>
+    </button>
+    <button class="bnav-btn" onclick="showPage('history')" id="nav-history">
+      <i class="fa-solid fa-clock-rotate-left"></i>
+      <span>History</span>
+      <div class="dot"></div>
+    </button>
+  </nav>
 </div>
 
-<!-- Trip detail modal -->
-<div class="modal-bg" id="modal-bg" onclick="closeModal(event)">
+<!-- Trip detail bottom sheet -->
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
   <div class="modal" id="modal-inner">
+    <div class="modal-handle"></div>
     <div class="modal-hdr">
       <h2 id="modal-title">Trip details</h2>
-      <button class="close-btn" onclick="document.getElementById('modal-bg').classList.remove('open')"><i class="fa-solid fa-xmark"></i></button>
+      <button class="close-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div id="modal-body"></div>
   </div>
@@ -324,9 +523,9 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 <div class="toast" id="toast"></div>
 
 <script>
-const COLORS=['#2d5a3d','#2563a8','#b85c2a','#8b6914','#8b3467','#4a3498'];
-const AV_BG=['#e8f0eb','#e6f0fb','#f5ede6','#fdf8e8','#fbeaf0','#eeedfe'];
-const AV_TX=['#2d5a3d','#1a4a8a','#7a3a18','#6b5010','#6b2448','#3a2888'];
+const COLORS=['#2d7a4f','#1d6fb8','#c05c20','#a07010','#8b2478','#4a3498'];
+const AV_BG=['#e6f4ec','#e8f1fb','#fdeee6','#fdf5e0','#f9e8f6','#eeecfe'];
+const AV_TX=['#2d7a4f','#1d6fb8','#b85c2a','#a07010','#8b2478','#4a3498'];
 const CATS=['Transport','Hotel','Food','Tickets','Guide','Misc'];
 const CKEYS=['c-transport','c-hotel','c-food','c-tickets','c-guide','c-misc'];
 
@@ -335,18 +534,24 @@ let tid=1;
 let splitMode='equal';
 
 const fmt=v=>'৳'+Math.round(v).toLocaleString('en-IN');
-const val=id=>parseFloat(document.getElementById(id).value)||0;
-const str=id=>document.getElementById(id).value.trim();
-const ini=n=>{const p=(n||'?').trim().split(' ');return p.length>=2?(p[0][0]+p[1][0]).toUpperCase():p[0].slice(0,2).toUpperCase();}
+const val=id=>parseFloat(document.getElementById(id)?.value)||0;
+const str=id=>(document.getElementById(id)?.value||'').trim();
+const ini=n=>{const p=(n||'?').trim().split(' ');return p.length>=2?(p[0][0]+p[1][0]).toUpperCase():p[0].slice(0,2).toUpperCase();};
 
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
 
 function showPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.bnav-btn').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
   document.getElementById('nav-'+p).classList.add('active');
-  if(p==='history')loadHistory();
+  document.getElementById('content').scrollTop=0;
+  if(p==='history') loadHistory();
+  if(p==='summary') calc();
 }
 
 function addTourist(){tourists.push({id:tid++,name:'',pct:0});redist();renderTourists();calc();}
@@ -359,7 +564,7 @@ function renderTourists(){
     <div class="t-row">
       <div class="avatar" style="background:${AV_BG[i%6]};color:${AV_TX[i%6]}">${ini(t.name||'?')}</div>
       <input type="text" placeholder="Tourist ${i+1} name" value="${t.name}" oninput="updateName(${t.id},this.value)">
-      <button class="rm-btn" onclick="removeTourist(${t.id})" title="Remove"><i class="fa-solid fa-xmark"></i></button>
+      <button class="rm-btn" onclick="removeTourist(${t.id})"><i class="fa-solid fa-xmark"></i></button>
     </div>`).join('');
   const sel=document.getElementById('sponsor-select');
   const prev=sel.value;
@@ -373,47 +578,41 @@ function setSplit(m){
   document.getElementById('opt-'+m).classList.add('active');
   document.getElementById('custom-pct-section').style.display=m==='custom'?'block':'none';
   document.getElementById('sponsor-section').style.display=m==='sponsor'?'block':'none';
-  if(m==='custom')renderPctControls();
+  if(m==='custom') renderPctControls();
   calc();
 }
 
 function renderPctControls(){
   document.getElementById('pct-controls').innerHTML=tourists.map((t,i)=>`
     <div class="pct-row">
-      <div class="avatar" style="width:24px;height:24px;font-size:10px;background:${AV_BG[i%6]};color:${AV_TX[i%6]}">${ini(t.name||'?')}</div>
-      <span style="font-size:13px;min-width:90px">${t.name||'Tourist '+(i+1)}</span>
-      <input type="range" min="0" max="100" step="1" value="${t.pct}" oninput="updatePct(${t.id},this.value)" style="flex:1">
+      <div class="avatar" style="width:28px;height:28px;font-size:10px;background:${AV_BG[i%6]};color:${AV_TX[i%6]}">${ini(t.name||'?')}</div>
+      <span class="pn">${t.name||'Tourist '+(i+1)}</span>
+      <input type="range" min="0" max="100" step="1" value="${t.pct}" oninput="updatePct(${t.id},this.value)">
       <span class="pct-badge" id="pb-${t.id}">${t.pct}%</span>
     </div>`).join('');
 }
 
 function updatePct(id,v){
   const t=tourists.find(t=>t.id===id);
-  if(t)t.pct=parseInt(v);
+  if(t) t.pct=parseInt(v);
   const b=document.getElementById('pb-'+id);
-  if(b)b.textContent=v+'%';
+  if(b) b.textContent=v+'%';
   document.getElementById('pct-warn').style.display=tourists.reduce((s,t)=>s+t.pct,0)!==100?'block':'none';
   calc();
 }
 
 function calcShares(grand){
-  const n=tourists.length;if(!n)return[];
-  if(splitMode==='equal')return tourists.map(()=>grand/n);
-  if(splitMode==='custom')return tourists.map(t=>grand*(t.pct/100));
-  if(splitMode==='organizer')return tourists.map((_,i)=>i===0?grand:0);
+  const n=tourists.length; if(!n)return[];
+  if(splitMode==='equal') return tourists.map(()=>grand/n);
+  if(splitMode==='custom') return tourists.map(t=>grand*(t.pct/100));
+  if(splitMode==='organizer') return tourists.map((_,i)=>i===0?grand:0);
   if(splitMode==='sponsor'){
     const si=parseInt(document.getElementById('sponsor-select').value);
-    if(si<0||si>=n)return tourists.map(()=>grand/n);
+    if(si<0||si>=n) return tourists.map(()=>grand/n);
     return tourists.map((_,i)=>i===si?grand:0);
   }
-  if(splitMode==='transport-only'){
-    const tr=val('c-transport');
-    return tourists.map(()=>tr/n+(grand-tr)/n);
-  }
-  if(splitMode==='hotel-food'){
-    const shared=val('c-hotel')+val('c-food');
-    return tourists.map(()=>shared/n+(grand-shared)/n);
-  }
+  if(splitMode==='transport-only'){const tr=val('c-transport');return tourists.map(()=>tr/n+(grand-tr)/n);}
+  if(splitMode==='hotel-food'){const sh=val('c-hotel')+val('c-food');return tourists.map(()=>sh/n+(grand-sh)/n);}
   return tourists.map(()=>grand/n);
 }
 
@@ -422,60 +621,46 @@ function calc(){
   const days=Math.max(1,val('days'));
   const cats=CKEYS.map(k=>val(k));
   const grand=cats.reduce((s,v)=>s+v,0);
+
   document.getElementById('m-total').textContent=fmt(grand);
   document.getElementById('m-avg').textContent=n?fmt(grand/n):'৳0';
   document.getElementById('m-pd').textContent=fmt(grand/days);
   const mm={'equal':'Equal','custom':'Custom %','organizer':'Organizer','transport-only':'Transport','hotel-food':'Hotel+food','sponsor':'Sponsored'};
-  document.getElementById('m-method').textContent=mm[splitMode];
+  document.getElementById('m-method').textContent=mm[splitMode]||'Equal';
+
   const dest=str('dest')||'Trip';
-  document.getElementById('r-dest').textContent=dest;
-  document.getElementById('r-meta').textContent=`${n} tourist${n!==1?'s':''} · ${days} day${days!==1?'s':''} · ${str('ttype')}`;
-  document.getElementById('r-tags').innerHTML=
-    `<span class="tag tag-green">${str('ttype')}</span><span class="tag tag-green">${n} people</span><span class="tag tag-amber">${days} days</span>`;
+  document.getElementById('sum-meta').textContent=`${dest} · ${n} tourist${n!==1?'s':''} · ${days} day${days!==1?'s':''}`;
+
   document.getElementById('bar-chart').innerHTML=cats.map((a,i)=>`
     <div class="bar-row">
       <span class="bar-lbl">${CATS[i]}</span>
       <div class="bar-track"><div class="bar-fill" style="width:${grand>0?(a/grand*100).toFixed(1):0}%;background:${COLORS[i]}"></div></div>
       <span class="bar-amt">${fmt(a)}</span>
     </div>`).join('');
+
   const shares=calcShares(grand);
   document.getElementById('person-summary').innerHTML=tourists.map((t,i)=>`
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-      <div class="avatar" style="width:26px;height:26px;font-size:10px;background:${AV_BG[i%6]};color:${AV_TX[i%6]}">${ini(t.name||'?')}</div>
-      <div style="flex:1">
-        <div style="display:flex;justify-content:space-between;font-size:13px">
-          <span style="font-weight:500">${t.name||'Tourist '+(i+1)}</span>
-          <span style="font-weight:500">${fmt(shares[i]||0)}</span>
-        </div>
-        <div style="height:4px;background:var(--border);border-radius:100px;margin-top:4px;overflow:hidden">
-          <div style="height:100%;border-radius:100px;background:${COLORS[i%6]};width:${grand>0?((shares[i]||0)/grand*100).toFixed(1):0}%"></div>
-        </div>
+    <div class="person-share">
+      <div class="avatar" style="width:32px;height:32px;font-size:11px;background:${AV_BG[i%6]};color:${AV_TX[i%6]}">${ini(t.name||'?')}</div>
+      <div class="ps-info">
+        <div class="ps-name">${t.name||'Tourist '+(i+1)}</div>
+        <div class="ps-bar"><div class="ps-bar-fill" style="background:${COLORS[i]};width:${grand>0?((shares[i]||0)/grand*100).toFixed(1):0}%"></div></div>
       </div>
-    </div>`).join('');
-  const perCat=cats.map(a=>n?a/n:0);
-  document.getElementById('person-cards').innerHTML=tourists.map((t,i)=>`
-    <div class="p-card">
-      <div class="pn">
-        <div class="avatar" style="width:24px;height:24px;font-size:10px;background:${AV_BG[i%6]};color:${AV_TX[i%6]}">${ini(t.name||'?')}</div>
-        ${t.name||'Tourist '+(i+1)}
-      </div>
-      <table>${cats.map((a,ci)=>`<tr><td>${CATS[ci]}</td><td>${fmt(splitMode==='equal'?perCat[ci]:cats[ci]*(shares[i]&&grand?shares[i]/grand:0))}</td></tr>`).join('')}</table>
-      <div class="ptotal"><span>Total</span><span style="color:${COLORS[i%6]}">${fmt(shares[i]||0)}</span></div>
+      <div class="ps-amt" style="color:${COLORS[i]}">${fmt(shares[i]||0)}</div>
     </div>`).join('');
 }
 
 async function saveTrip(){
-  const n=tourists.length;
   if(!str('dest')){showToast('Please enter a destination');return;}
   if(tourists.every(t=>!t.name.trim())){showToast('Please enter at least one tourist name');return;}
   const cats=CKEYS.map(k=>val(k));
   const grand=cats.reduce((s,v)=>s+v,0);
   const shares=calcShares(grand);
   const btn=document.getElementById('save-btn');
-  btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+  btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
   try{
     const res=await fetch('/api/trips',{
-      method:'POST',headers:{'Content-Type':'application/json'},
+      method:'POST', headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         destination:str('dest'), duration_days:Math.max(1,val('days')),
         transport_type:str('ttype'), transport_detail:str('tdetail'),
@@ -485,43 +670,41 @@ async function saveTrip(){
         tourists:tourists.map((t,i)=>({name:t.name||'Tourist '+(i+1),share_pct:t.pct,share_amount:shares[i]||0}))
       })
     });
-    if(res.ok){showToast('Trip saved to database!');loadSidebar();}
+    if(res.ok){showToast('Trip saved!');loadSidebar();}
     else showToast('Error saving trip');
   }catch(e){showToast('Cannot connect to server');}
-  btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Save to database';
+  btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Save trip';
 }
 
 async function loadSidebar(){
-  try{
-    const data=await fetch('/api/trips').then(r=>r.json());
-    const el=document.getElementById('sidebar-trips');
-    if(!data.length){el.innerHTML='<div class="no-trips">No saved trips yet</div>';return;}
-    el.innerHTML=data.slice(0,8).map(t=>`
-      <div class="saved-item" onclick="viewTrip(${t.id})">
-        <div class="si-name">${t.destination}</div>
-        <div class="si-meta">${t.tourist_count} people · ${t.duration_days}d</div>
-        <div class="si-amount">${fmt(t.total_cost)}</div>
-      </div>`).join('');
-  }catch(e){}
+  // no sidebar on mobile — just preload for history badge
 }
 
 async function loadHistory(){
   try{
     const data=await fetch('/api/trips').then(r=>r.json());
     const el=document.getElementById('history-list');
-    if(!data.length){el.innerHTML='<div style="color:var(--muted);font-size:14px">No trips saved yet.</div>';return;}
+    if(!data.length){el.innerHTML='<div style="color:var(--muted);font-size:14px;text-align:center;padding:2rem">No trips saved yet.</div>';return;}
     el.innerHTML=data.map(t=>`
-      <div class="trip-row" onclick="viewTrip(${t.id})">
-        <div>
-          <div class="tr-name">${t.destination}</div>
-          <div class="tr-meta">${t.tourist_count} tourists · ${t.duration_days} days · ${t.transport_type} · ${t.split_method}</div>
+      <div class="trip-card" onclick="viewTrip(${t.id})">
+        <div class="tc-top">
+          <div>
+            <div class="tc-dest">${t.destination}</div>
+            <div class="tc-meta">${t.tourist_count} tourists · ${t.duration_days} days</div>
+          </div>
+          <div class="tc-amt">${fmt(t.total_cost)}</div>
         </div>
-        <div class="tr-right" style="display:flex;align-items:center;gap:0">
-          <div><div class="tr-amt">${fmt(t.total_cost)}</div><div class="tr-date">${t.created_at}</div></div>
-          <button class="del-btn" onclick="event.stopPropagation();deleteTrip(${t.id})"><i class="fa-solid fa-trash"></i></button>
+        <div class="tc-tags">
+          <span class="tag tag-g">${t.transport_type}</span>
+          <span class="tag tag-b">${t.tourist_count} people</span>
+          <span class="tag tag-a">${t.split_method} split</span>
+        </div>
+        <div class="tc-footer">
+          <span class="tc-date">${t.created_at}</span>
+          <button class="del-btn" onclick="event.stopPropagation();deleteTrip(${t.id})"><i class="fa-solid fa-trash"></i> Delete</button>
         </div>
       </div>`).join('');
-  }catch(e){document.getElementById('history-list').innerHTML='<div style="color:var(--muted)">Could not load trips.</div>';}
+  }catch(e){document.getElementById('history-list').innerHTML='<div style="color:var(--muted);text-align:center;padding:2rem">Could not load trips.</div>';}
 }
 
 async function viewTrip(id){
@@ -529,51 +712,45 @@ async function viewTrip(id){
   document.getElementById('modal-title').textContent=t.destination;
   const cats=[t.cost_transport,t.cost_hotel,t.cost_food,t.cost_tickets,t.cost_guide,t.cost_misc];
   document.getElementById('modal-body').innerHTML=`
-    <div style="margin-bottom:1rem">
-      <span class="tag tag-green">${t.transport_type}</span>
-      <span class="tag tag-green">${t.duration_days} days</span>
-      <span class="tag tag-amber">${t.split_method} split</span>
-      <span style="font-size:12px;color:var(--muted);margin-left:6px">${t.created_at}</span>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem">
+      <span class="tag tag-g">${t.transport_type}</span>
+      <span class="tag tag-b">${t.duration_days} days</span>
+      <span class="tag tag-a">${t.split_method} split</span>
+      <span style="font-size:11px;color:var(--muted);display:flex;align-items:center">${t.created_at}</span>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem">
-      ${['Total cost','Avg/person','Per day'].map((l,i)=>{
-        const vs=[t.total_cost,t.tourists.length?t.total_cost/t.tourists.length:0,t.total_cost/t.duration_days];
-        return `<div class="metric"><div class="ml">${l}</div><div class="mv">${fmt(vs[i])}</div></div>`;
-      }).join('')}
+    <div class="metrics-row" style="margin-bottom:.875rem">
+      <div class="metric accent-card"><div class="ml">Total</div><div class="mv">${fmt(t.total_cost)}</div></div>
+      <div class="metric"><div class="ml">Avg/person</div><div class="mv">${fmt(t.tourists.length?t.total_cost/t.tourists.length:0)}</div></div>
+      <div class="metric"><div class="ml">Per day</div><div class="mv">${fmt(t.total_cost/t.duration_days)}</div></div>
+      <div class="metric"><div class="ml">People</div><div class="mv">${t.tourists.length}</div></div>
     </div>
-    <div style="margin-bottom:1rem">
-      <div class="sec-lbl">Cost breakdown</div>
-      ${cats.map((a,i)=>`<div class="bar-row">
-        <span class="bar-lbl">${CATS[i]}</span>
-        <div class="bar-track"><div class="bar-fill" style="width:${t.total_cost>0?(a/t.total_cost*100).toFixed(1):0}%;background:${COLORS[i]}"></div></div>
-        <span class="bar-amt">${fmt(a)}</span>
-      </div>`).join('')}
-    </div>
-    <div class="sec-lbl">Tourists</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px">
-      ${t.tourists.map((p,i)=>`
-        <div class="p-card">
-          <div class="pn">
-            <div class="avatar" style="width:22px;height:22px;font-size:10px;background:${AV_BG[i%6]};color:${AV_TX[i%6]}">${ini(p.name)}</div>
-            ${p.name}
-          </div>
-          <div class="ptotal"><span>Share</span><span style="color:${COLORS[i%6]}">${fmt(p.share_amount)}</span></div>
-        </div>`).join('')}
-    </div>`;
+    <div class="card-title" style="margin-bottom:.75rem"><i class="fa-solid fa-chart-bar" style="color:var(--accent)"></i> Breakdown</div>
+    ${cats.map((a,i)=>`<div class="bar-row">
+      <span class="bar-lbl">${CATS[i]}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${t.total_cost>0?(a/t.total_cost*100).toFixed(1):0}%;background:${COLORS[i]}"></div></div>
+      <span class="bar-amt">${fmt(a)}</span>
+    </div>`).join('')}
+    <div class="divider"></div>
+    <div class="card-title" style="margin-bottom:.75rem"><i class="fa-solid fa-users" style="color:var(--accent)"></i> Tourists</div>
+    ${t.tourists.map((p,i)=>`
+      <div class="person-share" style="margin-bottom:10px">
+        <div class="avatar" style="width:32px;height:32px;font-size:11px;background:${AV_BG[i%6]};color:${AV_TX[i%6]}">${ini(p.name)}</div>
+        <div class="ps-info"><div class="ps-name">${p.name}</div></div>
+        <div class="ps-amt" style="color:${COLORS[i]}">${fmt(p.share_amount)}</div>
+      </div>`).join('')}`;
   document.getElementById('modal-bg').classList.add('open');
 }
 
 async function deleteTrip(id){
   if(!confirm('Delete this trip?'))return;
   await fetch('/api/trips/'+id,{method:'DELETE'});
-  showToast('Trip deleted');loadHistory();loadSidebar();
+  showToast('Trip deleted'); loadHistory();
 }
 
-function closeModal(e){if(e.target===document.getElementById('modal-bg'))document.getElementById('modal-bg').classList.remove('open');}
+function closeModal(){ document.getElementById('modal-bg').classList.remove('open'); }
 
 renderTourists();
 calc();
-loadSidebar();
 </script>
 </body>
 </html>
