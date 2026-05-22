@@ -134,9 +134,15 @@ body {
 
 /* ── Cost grid ── */
 .cost-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.cost-field { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; position: relative; }
-.cost-field label { font-size: 10px; color: var(--muted); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; display: block; margin-bottom: 4px; }
+.cost-field { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; position: relative; transition: border-color .15s, background .15s; }
+.cost-field.per-person-on { border-color: var(--accent); background: var(--accent-dim); }
+.cost-field .cf-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.cost-field label { font-size: 10px; color: var(--muted); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.cost-field .pp-toggle { font-size: 9px; font-weight: 600; padding: 2px 7px; border-radius: 100px; border: 1px solid var(--border2); background: var(--surface); color: var(--muted); cursor: pointer; letter-spacing: .04em; white-space: nowrap; }
+.cost-field.per-person-on .pp-toggle { background: var(--accent); border-color: var(--accent); color: #fff; }
 .cost-field input { border: none; background: transparent; padding: 0; font-size: 16px; font-weight: 500; color: var(--text); width: 100%; font-family: 'Sora', sans-serif; outline: none; }
+.cost-field .cf-hint { font-size: 10px; color: var(--accent); margin-top: 3px; display: none; font-weight: 500; }
+.cost-field.per-person-on .cf-hint { display: block; }
 .cost-field .currency { font-size: 11px; color: var(--muted); position: absolute; right: 10px; bottom: 10px; }
 
 /* ── Tourist rows ── */
@@ -283,6 +289,33 @@ body {
 /* ── Warn ── */
 .warn-note { font-size: 12px; color: var(--amber); margin-top: 6px; display: none; }
 
+/* ── Accom type pills ── */
+.accom-types { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: .75rem; }
+.accom-pill {
+  padding: 6px 13px; border: 1px solid var(--border2); border-radius: 100px;
+  font-size: 12px; font-weight: 500; color: var(--muted); cursor: pointer;
+  background: var(--bg); transition: all .15s;
+}
+.accom-pill.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+
+/* ── Expire badge ── */
+.expire-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 600; padding: 3px 9px;
+  border-radius: 100px; letter-spacing: .04em;
+}
+.expire-ok  { background: var(--accent-dim); color: var(--accent); }
+.expire-soon{ background: var(--amber-dim);  color: var(--amber);  }
+.expire-now { background: var(--danger-dim); color: var(--danger); }
+
+/* ── Accom detail block in modal ── */
+.accom-detail { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: .875rem; margin-bottom: .875rem; }
+.accom-detail .ad-label { font-size: 10px; color: var(--muted); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; margin-bottom: .5rem; display: flex; align-items: center; gap: 6px; }
+.accom-detail .ad-label i { color: var(--accent); }
+.accom-row { display: flex; gap: 8px; margin-bottom: 7px; font-size: 13px; }
+.accom-row .ar-key { color: var(--muted); flex-shrink: 0; width: 82px; font-size: 11px; font-weight: 600; padding-top: 1px; }
+.accom-row .ar-val { color: var(--text); font-weight: 500; flex: 1; word-break: break-word; }
+
 /* ── Summary page ── */
 #page-summary .card { margin-bottom: .75rem; }
 
@@ -349,38 +382,105 @@ body {
         </div>
       </div>
 
+      <!-- Accommodation -->
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-hotel"></i> Accommodation / Stay</div>
+        <div class="accom-types">
+          <div class="accom-pill active" onclick="setAccomType(this,'hotel')">🏨 Hotel</div>
+          <div class="accom-pill" onclick="setAccomType(this,'resort')">🌴 Resort</div>
+          <div class="accom-pill" onclick="setAccomType(this,'guesthouse')">🏡 Guesthouse</div>
+          <div class="accom-pill" onclick="setAccomType(this,'hostel')">🛏 Hostel</div>
+          <div class="accom-pill" onclick="setAccomType(this,'rental')">🏠 Rental</div>
+          <div class="accom-pill" onclick="setAccomType(this,'other')">📍 Other</div>
+        </div>
+        <div class="field">
+          <label>Property name</label>
+          <input id="accom-name" type="text" placeholder="e.g. Sea Pearl Beach Resort">
+        </div>
+        <div class="field">
+          <label>Address / Area</label>
+          <input id="accom-address" type="text" placeholder="e.g. Sugandha Point, Cox's Bazar">
+        </div>
+        <div class="g2">
+          <div class="field">
+            <label>Check-in date</label>
+            <input id="accom-checkin" type="date">
+          </div>
+          <div class="field">
+            <label>Check-out date</label>
+            <input id="accom-checkout" type="date">
+          </div>
+        </div>
+        <div class="g2">
+          <div class="field">
+            <label>Room type</label>
+            <select id="accom-roomtype">
+              <option value="">— select —</option>
+              <option>Single</option><option>Double</option><option>Twin</option>
+              <option>Triple</option><option>Suite</option><option>Dormitory</option>
+              <option>Family room</option><option>Entire place</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>No. of rooms</label>
+            <input id="accom-rooms" type="number" placeholder="e.g. 2" min="1">
+          </div>
+        </div>
+        <div class="g2">
+          <div class="field">
+            <label>Booking ref / ID</label>
+            <input id="accom-ref" type="text" placeholder="e.g. BK-20489">
+          </div>
+          <div class="field">
+            <label>Contact / phone</label>
+            <input id="accom-phone" type="tel" placeholder="e.g. 01700-000000">
+          </div>
+        </div>
+        <div class="field">
+          <label>Notes (amenities, access, etc.)</label>
+          <input id="accom-notes" type="text" placeholder="e.g. Breakfast included, sea view, free Wi-Fi">
+        </div>
+      </div>
+
       <!-- Costs -->
       <div class="card">
         <div class="card-title"><i class="fa-solid fa-receipt"></i> Total costs (group)</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:.75rem">Tap <strong>1 person</strong> to enter per-person amount — auto-multiplies by tourist count.</div>
         <div class="cost-grid">
-          <div class="cost-field">
-            <label>Transport</label>
+          <div class="cost-field" id="cf-transport">
+            <div class="cf-top"><label>Transport</label><button class="pp-toggle" onclick="togglePP('transport')">1 person</button></div>
             <input id="c-transport" type="number" placeholder="0" oninput="calc()">
+            <div class="cf-hint" id="hint-transport"></div>
             <span class="currency">৳</span>
           </div>
-          <div class="cost-field">
-            <label>Hotel</label>
+          <div class="cost-field" id="cf-hotel">
+            <div class="cf-top"><label>Hotel</label><button class="pp-toggle" onclick="togglePP('hotel')">1 person</button></div>
             <input id="c-hotel" type="number" placeholder="0" oninput="calc()">
+            <div class="cf-hint" id="hint-hotel"></div>
             <span class="currency">৳</span>
           </div>
-          <div class="cost-field">
-            <label>Food</label>
+          <div class="cost-field" id="cf-food">
+            <div class="cf-top"><label>Food</label><button class="pp-toggle" onclick="togglePP('food')">1 person</button></div>
             <input id="c-food" type="number" placeholder="0" oninput="calc()">
+            <div class="cf-hint" id="hint-food"></div>
             <span class="currency">৳</span>
           </div>
-          <div class="cost-field">
-            <label>Tickets</label>
+          <div class="cost-field" id="cf-tickets">
+            <div class="cf-top"><label>Tickets</label><button class="pp-toggle" onclick="togglePP('tickets')">1 person</button></div>
             <input id="c-tickets" type="number" placeholder="0" oninput="calc()">
+            <div class="cf-hint" id="hint-tickets"></div>
             <span class="currency">৳</span>
           </div>
-          <div class="cost-field">
-            <label>Guide</label>
+          <div class="cost-field" id="cf-guide">
+            <div class="cf-top"><label>Guide</label><button class="pp-toggle" onclick="togglePP('guide')">1 person</button></div>
             <input id="c-guide" type="number" placeholder="0" oninput="calc()">
+            <div class="cf-hint" id="hint-guide"></div>
             <span class="currency">৳</span>
           </div>
-          <div class="cost-field">
-            <label>Misc</label>
+          <div class="cost-field" id="cf-misc">
+            <div class="cf-top"><label>Misc</label><button class="pp-toggle" onclick="togglePP('misc')">1 person</button></div>
             <input id="c-misc" type="number" placeholder="0" oninput="calc()">
+            <div class="cf-hint" id="hint-misc"></div>
             <span class="currency">৳</span>
           </div>
         </div>
@@ -532,10 +632,34 @@ const CKEYS=['c-transport','c-hotel','c-food','c-tickets','c-guide','c-misc'];
 let tourists=[{id:0,name:'',pct:100}];
 let tid=1;
 let splitMode='equal';
+let accomType='hotel';
+
+function setAccomType(el, type){
+  accomType = type;
+  document.querySelectorAll('.accom-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+}
 
 const fmt=v=>'৳'+Math.round(v).toLocaleString('en-IN');
-const val=id=>parseFloat(document.getElementById(id)?.value)||0;
 const str=id=>(document.getElementById(id)?.value||'').trim();
+
+// Per-person toggle state
+const ppState={transport:false,hotel:false,food:false,tickets:false,guide:false,misc:false};
+
+function togglePP(key){
+  ppState[key]=!ppState[key];
+  const card=document.getElementById('cf-'+key);
+  card.classList.toggle('per-person-on', ppState[key]);
+  calc();
+}
+
+// Returns the effective total for a cost field (raw input × tourists if per-person mode on)
+function val(id){
+  const raw=parseFloat(document.getElementById(id)?.value)||0;
+  const key=id.replace('c-','');
+  if(ppState[key]) return raw * tourists.length;
+  return raw;
+}
 const ini=n=>{const p=(n||'?').trim().split(' ');return p.length>=2?(p[0][0]+p[1][0]).toUpperCase():p[0].slice(0,2).toUpperCase();};
 
 function showToast(msg){
@@ -622,6 +746,19 @@ function calc(){
   const cats=CKEYS.map(k=>val(k));
   const grand=cats.reduce((s,v)=>s+v,0);
 
+  // Update per-person hints
+  const ppKeys=['transport','hotel','food','tickets','guide','misc'];
+  ppKeys.forEach(k=>{
+    const hint=document.getElementById('hint-'+k);
+    if(!hint) return;
+    const raw=parseFloat(document.getElementById('c-'+k)?.value)||0;
+    if(ppState[k] && raw>0){
+      hint.textContent='৳'+Math.round(raw).toLocaleString('en-IN')+' × '+tourists.length+' = '+fmt(raw*tourists.length);
+    } else {
+      hint.textContent='';
+    }
+  });
+
   document.getElementById('m-total').textContent=fmt(grand);
   document.getElementById('m-avg').textContent=n?fmt(grand/n):'৳0';
   document.getElementById('m-pd').textContent=fmt(grand/days);
@@ -685,8 +822,12 @@ async function loadHistory(){
     const data=await fetch('/api/trips').then(r=>r.json());
     const el=document.getElementById('history-list');
     if(!data.length){el.innerHTML='<div style="color:var(--muted);font-size:14px;text-align:center;padding:2rem">No trips saved yet.</div>';return;}
-    el.innerHTML=data.map(t=>`
-      <div class="trip-card" onclick="viewTrip(${t.id})">
+    el.innerHTML=data.map(t=>{
+      const days=t.expires_in_days;
+      const badgeCls=days<=2?'expire-now':days<=5?'expire-soon':'expire-ok';
+      const badgeTxt=days<=0?'Expiring today':`Auto-deletes in ${days}d`;
+      const accomTag=t.accom_name?`<span class="tag" style="background:var(--surface2);color:var(--muted)"><i class="fa-solid fa-hotel" style="margin-right:4px;font-size:9px"></i>${t.accom_name}</span>`:'';
+      return `<div class="trip-card" onclick="viewTrip(${t.id})">
         <div class="tc-top">
           <div>
             <div class="tc-dest">${t.destination}</div>
@@ -698,12 +839,13 @@ async function loadHistory(){
           <span class="tag tag-g">${t.transport_type}</span>
           <span class="tag tag-b">${t.tourist_count} people</span>
           <span class="tag tag-a">${t.split_method} split</span>
+          ${accomTag}
         </div>
         <div class="tc-footer">
-          <span class="tc-date">${t.created_at}</span>
+          <span class="tc-date">${t.created_at} · <span class="expire-badge ${badgeCls}"><i class="fa-solid fa-clock"></i> ${badgeTxt}</span></span>
           <button class="del-btn" onclick="event.stopPropagation();deleteTrip(${t.id})"><i class="fa-solid fa-trash"></i> Delete</button>
         </div>
-      </div>`).join('');
+      </div>`;}).join('');
   }catch(e){document.getElementById('history-list').innerHTML='<div style="color:var(--muted);text-align:center;padding:2rem">Could not load trips.</div>';}
 }
 
@@ -731,6 +873,20 @@ async function viewTrip(id){
       <span class="bar-amt">${fmt(a)}</span>
     </div>`).join('')}
     <div class="divider"></div>
+    ${t.accom_name||t.accom_address?`
+    <div class="accom-detail">
+      <div class="ad-label"><i class="fa-solid fa-hotel"></i> Accommodation</div>
+      ${t.accom_name?`<div class="accom-row"><span class="ar-key">Property</span><span class="ar-val">${t.accom_name}${t.accom_type?' <span style="font-size:10px;color:var(--muted)">(${t.accom_type})</span>':''}</span></div>`:''}
+      ${t.accom_address?`<div class="accom-row"><span class="ar-key">Address</span><span class="ar-val">${t.accom_address}</span></div>`:''}
+      ${t.accom_checkin?`<div class="accom-row"><span class="ar-key">Check-in</span><span class="ar-val">${t.accom_checkin}</span></div>`:''}
+      ${t.accom_checkout?`<div class="accom-row"><span class="ar-key">Check-out</span><span class="ar-val">${t.accom_checkout}</span></div>`:''}
+      ${t.accom_room_type?`<div class="accom-row"><span class="ar-key">Room type</span><span class="ar-val">${t.accom_room_type}${t.accom_rooms?' × '+t.accom_rooms+' room(s)':''}</span></div>`:''}
+      ${t.accom_booking_ref?`<div class="accom-row"><span class="ar-key">Booking ref</span><span class="ar-val" style="font-family:monospace;font-weight:600">${t.accom_booking_ref}</span></div>`:''}
+      ${t.accom_phone?`<div class="accom-row"><span class="ar-key">Phone</span><span class="ar-val"><a href="tel:${t.accom_phone}" style="color:var(--accent2)">${t.accom_phone}</a></span></div>`:''}
+      ${t.accom_notes?`<div class="accom-row"><span class="ar-key">Notes</span><span class="ar-val">${t.accom_notes}</span></div>`:''}
+    </div>
+    <div class="divider"></div>
+    `:''}
     <div class="card-title" style="margin-bottom:.75rem"><i class="fa-solid fa-users" style="color:var(--accent)"></i> Tourists</div>
     ${t.tourists.map((p,i)=>`
       <div class="person-share" style="margin-bottom:10px">
